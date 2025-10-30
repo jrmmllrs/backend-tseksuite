@@ -84,7 +84,7 @@ JWT_TOKEN=your_jwt_secret
 suit-test-backend/
 │
 ├── config/
-│   └── db.mjs               # Sequelize database configuration
+│   └── db.mjs                     # Sequelize database configuration
 │
 ├── models/
 │   ├── applicant.model.mjs
@@ -95,7 +95,7 @@ suit-test-backend/
 │   ├── result.model.mjs
 │   ├── bridge.model.mjs
 │   ├── testLink.model.mjs
-│   └── index.model.mjs      # Associations and model initialization
+│   └── index.model.mjs            # Associations and model initialization
 │
 ├── controllers/
 │   ├── applicant.controller.mjs
@@ -111,7 +111,7 @@ suit-test-backend/
 │   └── ...
 │
 ├── middleware/
-│   └── auth.middleware.mjs  # JWT token verification
+│   └── auth.middleware.mjs        # JWT token verification
 │
 ├── utils/
 │   ├── jwt.js
@@ -124,15 +124,12 @@ suit-test-backend/
 
 👨‍💻 Developer
 
-Mark Joseph Abano 
-📧 markabanomain@gmail.com
-Francis Alex Darang 
-📧 francisddarang@gmail.com
-Neil Aron Pascual 
-📧 neilaronpascual@gmail.com
-Jerome Millares 
-📧 jmillares0945@gmail.com
-Rav Guzman 
-📧 ravalbert17@gmail.com
+| Name                    | Email                                                         |
+| ----------------------- | ------------------------------------------------------------- |
+| **Mark Joseph Abano**   | [markabanomain@gmail.com](mailto:markabanomain@gmail.com)     |
+| **Francis Alex Darang** | [francisddarang@gmail.com](mailto:francisddarang@gmail.com)   |
+| **Neil Aron Pascual**   | [neilaronpascual@gmail.com](mailto:neilaronpascual@gmail.com) |
+| **Jerome Millares**     | [jmillares0945@gmail.com](mailto:jmillares0945@gmail.com)     |
+| **Rav Guzman**          | [ravalbert17@gmail.com](mailto:ravalbert17@gmail.com)         |
 
 💼 Project: Suit Test App — Backend
