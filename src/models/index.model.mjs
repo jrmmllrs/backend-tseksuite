@@ -17,24 +17,35 @@ const Result = ResultModel(sequelize);
 const Bridge = BridgeModel(sequelize);
 
 // Relationships
+
+// Department ↔ Quiz
 Department.hasMany(Quiz, { foreignKey: "dept_id" });
 Quiz.belongsTo(Department, { foreignKey: "dept_id" });
 
+// Department ↔ Examiner
+Department.hasMany(Examiner, { foreignKey: "dept_id" });
+Examiner.belongsTo(Department, { foreignKey: "dept_id" });
+
+// Quiz ↔ QuestionBank
 Quiz.hasMany(QuestionBank, { foreignKey: "quiz_id" });
 QuestionBank.belongsTo(Quiz, { foreignKey: "quiz_id" });
 
+// QuestionBank ↔ AnswerOption
 QuestionBank.hasMany(AnswerOption, { foreignKey: "question_id" });
 AnswerOption.belongsTo(QuestionBank, { foreignKey: "question_id" });
 
-Examiner.hasMany(Result, { foreignKey: "examiner_id" });
-Result.belongsTo(Examiner, { foreignKey: "examiner_id" });
-
+// Quiz ↔ Result
 Quiz.hasMany(Result, { foreignKey: "quiz_id" });
 Result.belongsTo(Quiz, { foreignKey: "quiz_id" });
 
+// Examiner ↔ Result
+Examiner.hasMany(Result, { foreignKey: "examiner_id" });
+Result.belongsTo(Examiner, { foreignKey: "examiner_id" });
+
+// Bridge relationships
 Examiner.hasMany(Bridge, { foreignKey: "examiner_id" });
 Quiz.hasMany(Bridge, { foreignKey: "quiz_id" });
-Result.hasOne(Bridge, { foreignKey: "result_id" });
+Result.hasMany(Bridge, { foreignKey: "result_id" });
 
 Bridge.belongsTo(Examiner, { foreignKey: "examiner_id" });
 Bridge.belongsTo(Quiz, { foreignKey: "quiz_id" });
