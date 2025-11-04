@@ -76,7 +76,6 @@ export const updateDepartment = async (req, res) => {
   }
 };
 
-// NEW: Toggle active status function
 export const toggleActiveStatus = async (req, res) => {
   try {
     const { dept_id } = req.params;
@@ -100,7 +99,9 @@ export const toggleActiveStatus = async (req, res) => {
     await department.save();
 
     res.status(200).json({
-      message: `Department ${is_active ? 'activated' : 'deactivated'} successfully`,
+      message: `Department ${
+        is_active ? "activated" : "deactivated"
+      } successfully`,
       data: department,
     });
   } catch (error) {
