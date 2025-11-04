@@ -9,6 +9,16 @@ export default (sequelize) =>
         primaryKey: true,
         autoIncrement: true,
       },
+      dept_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        refereces: {
+          model: "departments",
+          key: "dept_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       first_name: { type: DataTypes.STRING(255), allowNull: false },
       last_name: { type: DataTypes.STRING(255), allowNull: false },
       email: { type: DataTypes.STRING(255), allowNull: false, unique: true },

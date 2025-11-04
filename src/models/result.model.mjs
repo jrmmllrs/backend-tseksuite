@@ -9,8 +9,26 @@ export default (sequelize) =>
         primaryKey: true,
         autoIncrement: true,
       },
-      examiner_id: { type: DataTypes.INTEGER, allowNull: false },
-      quiz_id: { type: DataTypes.INTEGER, allowNull: false },
+      examiner_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "examiners",
+          key: "examiner_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
+      quiz_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "quizzes",
+          key: "quiz_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       score: { type: DataTypes.INTEGER, allowNull: false },
       status: {
         type: DataTypes.ENUM("COMPLETED", "ABANDONED"),

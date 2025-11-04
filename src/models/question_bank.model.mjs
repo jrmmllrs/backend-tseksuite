@@ -9,7 +9,16 @@ export default (sequelize) =>
         primaryKey: true,
         autoIncrement: true,
       },
-      quiz_id: { type: DataTypes.INTEGER, allowNull: false },
+      quiz_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "quizzes",
+          key: "quiz_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       question_text: { type: DataTypes.TEXT, allowNull: false },
       question_type: {
         type: DataTypes.ENUM("MC", "CB", "TF", "DESC"),
