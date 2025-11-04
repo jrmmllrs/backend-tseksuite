@@ -1,17 +1,18 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors"; // Add this import
+import cors from "cors";
 import sequelize from "./configs/db.mjs";
 import routes from "./routes/index.routes.mjs";
 
 const app = express();
 dotenv.config();
 
-// Add CORS middleware BEFORE other middleware
-app.use(cors({
-  origin: 'http://localhost:5173', // Your frontend URL
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
