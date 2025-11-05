@@ -1,9 +1,15 @@
-import { Examiner } from "../models/index.model.mjs";
+import { Department, Examiner } from "../models/index.model.mjs";
 
 export const getAllExaminer = async (req, res) => {
   try {
     const examiners = await Examiner.findAll({
       order: [["created_at", "ASC"]],
+      include: [
+        {
+          model: Department,
+          attributes: ["dept_name"],
+        },
+      ],
     });
 
     if (!examiners) {

@@ -12,7 +12,7 @@ export default (sequelize) =>
       dept_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        refereces: {
+        references: {
           model: "departments",
           key: "dept_id",
         },
