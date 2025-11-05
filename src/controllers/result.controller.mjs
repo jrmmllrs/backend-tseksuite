@@ -1,8 +1,25 @@
-import { Result } from "../models/index.model.mjs";
+import { Department, Examiner, Quiz, Result } from "../models/index.model.mjs";
 
 export const getAllResult = async (req, res) => {
   try {
-    const results = await Result.findAll();
+    const results = await Result.findAll({
+      include: [
+        {
+          model: Examiner,
+          attributes: ["first_name", "last_name", "email"],
+          include: [
+            {
+              model: Department,
+              attributes: ["dept_name"],
+            },
+          ],
+        },
+        {
+          model: Quiz,
+          attributes: ["quiz_name"],
+        },
+      ],
+    });
 
     if (!results) {
       return res.status(400).json({ message: "There are no results" });
