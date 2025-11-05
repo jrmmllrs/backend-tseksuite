@@ -2,7 +2,11 @@ import { AnswerOption } from "../models/index.model.mjs";
 
 export const getAllAnswer = async (req, res) => {
   try {
-    const answers = await AnswerOption.findAll({});
+    const { question_id } = req.body;
+
+    const answers = await AnswerOption.findAll({
+      where: { question_id },
+    });
 
     res
       .status(200)

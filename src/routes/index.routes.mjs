@@ -4,6 +4,7 @@ import departmentRoutes from "../routes/department.route.mjs";
 import quizRoutes from "../routes/quiz.route.mjs";
 import questionRoutes from "../routes/question_bank.route.mjs";
 import answerRoutes from "../routes/answer_option.route.mjs";
+import resultRoutes from "../routes/result.route.mjs";
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/department", departmentRoutes);
 router.use("/quiz", quizRoutes);
 router.use("/question", questionRoutes);
 router.use("/answer", answerRoutes);
+router.use("/result", resultRoutes);
 
 export default router;

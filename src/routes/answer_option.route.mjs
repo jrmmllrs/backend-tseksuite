@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get("/get", getAllAnswer);
+router.get("/:question_id/get", getAllAnswer);
 router.post("/:question_id/create", createAnswer);
 router.delete("/:question_id/delete", deleteAnswer);
 router.put("/:question_id/update", updateAnswer);
