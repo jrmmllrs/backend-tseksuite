@@ -103,7 +103,7 @@ export const completeLinkInvitation = async (req, res) => {
               include: [
                 {
                   model: AnswerOption,
-                  attributes: ["answer_id", "option_text", "is_correct"],
+                  attributes: ["answer_id", "option_text"],
                 },
               ],
             },

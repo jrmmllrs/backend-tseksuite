@@ -13,7 +13,7 @@ export const validateSchema = (schema, type = "body") => {
         }));
 
         return res.status(400).json({
-          message: "Validation failed",
+          message: "Zod Validation failed",
           errors: formatted,
         });
       }
