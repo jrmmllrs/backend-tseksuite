@@ -7,7 +7,10 @@ export const getAnswersForTest = async (req, res) => {
 
     const answers = await AnswerOption.findAll({
       where: { question_id },
-      attributes: ["answer_id", "option_text"],
+      attributes: {
+        include: ["answer_id", "option_text"],
+        exclude: ["is_correct"],
+      },
       order: [["answer_id", "ASC"]],
     });
 
