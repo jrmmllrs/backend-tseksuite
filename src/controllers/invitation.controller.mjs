@@ -4,8 +4,6 @@ import {
   Quiz,
   Department,
   Examiner,
-  QuestionBank,
-  AnswerOption,
 } from "../models/index.model.mjs";
 import env from "../configs/env.mjs";
 
@@ -53,9 +51,9 @@ export const validateLinkInvitation = async (req, res) => {
 
     const invitation = await Invitation.findOne({
       where: { token },
-      include: [ // FIXED: was "includes" (typo)
-        { model: Quiz, attributes: ["quiz_id", "quiz_name"] }, // FIXED: was "quiz_name" only
-        { model: Department, attributes: ["dept_id", "dept_name"] }, // FIXED: was "dept_name" only
+      include: [
+        { model: Quiz, attributes: ["quiz_id", "quiz_name"] },
+        { model: Department, attributes: ["dept_id", "dept_name"] },
       ],
     });
 
@@ -76,10 +74,10 @@ export const validateLinkInvitation = async (req, res) => {
       message: "Invitation valid.",
       data: {
         email: invitation.email,
-        dept_id: invitation.dept_id,        // ← ADD THIS
-        quiz_id: invitation.quiz_id,        // ← ADD THIS
-        quiz_name: invitation.Quiz?.quiz_name,      // ← OPTIONAL: for display
-        dept_name: invitation.Department?.dept_name, // ← OPTIONAL: for display
+        dept_id: invitation.dept_id,
+        quiz_id: invitation.quiz_id,
+        quiz_name: invitation.Quiz?.quiz_name,
+        dept_name: invitation.Department?.dept_name,
       },
     });
   } catch (error) {
@@ -98,18 +96,6 @@ export const completeLinkInvitation = async (req, res) => {
         {
           model: Quiz,
           attributes: ["quiz_id", "quiz_name", "time_limit"],
-          include: [
-            {
-              model: QuestionBank,
-              attributes: ["question_id", "question_text"],
-              include: [
-                {
-                  model: AnswerOption,
-                  attributes: ["answer_id", "option_text"],
-                },
-              ],
-            },
-          ],
         },
       ],
     });
