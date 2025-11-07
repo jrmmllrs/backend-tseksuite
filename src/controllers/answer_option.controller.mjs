@@ -7,8 +7,8 @@ export const getAnswersForTest = async (req, res) => {
 
     const answers = await AnswerOption.findAll({
       where: { question_id },
-      attributes: ['answer_id', 'option_text'], // EXCLUDE is_correct for security
-      order: [['answer_id', 'ASC']],
+      attributes: ["answer_id", "option_text"],
+      order: [["answer_id", "ASC"]],
     });
 
     res.status(200).json({
@@ -28,7 +28,7 @@ export const getAllAnswer = async (req, res) => {
 
     const answers = await AnswerOption.findAll({
       where: { question_id },
-      order: [['answer_id', 'ASC']],
+      order: [["answer_id", "ASC"]],
     });
 
     res.status(200).json({
