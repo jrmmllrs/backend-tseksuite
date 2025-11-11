@@ -1,4 +1,11 @@
-import { Department, Examiner, Quiz, Result } from "../models/index.model.mjs";
+import {
+  AnswerOption,
+  Department,
+  Examiner,
+  QuestionBank,
+  Quiz,
+  Result,
+} from "../models/index.model.mjs";
 
 export const getAllResult = async (req, res) => {
   try {
@@ -42,8 +49,51 @@ export const createResult = async (req, res) => {
     const { examiner_id, quiz_id, answers, status } = req.body;
 
     //checking of results
+    const questions = await QuestionBank.findAll({
+      where: {
+        quiz_id,
+      },
+      include: [
+        {
+          model: AnswerOption,
+          where: { is_correct: true },
+          attributes: ["option_text"],
+        },
+      ],
+    });
 
-    const score = 0;
+    let score = 0;
+
+    for (const answer of answers) {
+      const question = questions.find(
+        (ques) => ques.question_id === answer.question_id
+      );
+      if (!question) continue;
+
+      if (type === "descriptive") {
+        continue;
+      }
+
+      const correctAnswers = question.AnswerOptions.filter(
+        (opt) => opt.is_correct
+      ).map((opt) => opt.option_text.trim().toLowerCase());
+
+      const userAnswers = Array.isArray(answer.selected_answer)
+        ? answer.selected_answer.map((a) => a.trim().toLowerCase())
+        : [answer.selected_answer.trim().toLowerCase()];
+
+      if (type === "checkbox") {
+        const isEqual =
+          userAnswers.length === correctAnswers.length &&
+          userAnswers.every((a) => correctAnswers.includes(a));
+
+        if (isEqual) score++;
+      } else {
+        if (userAnswers[0] === correctAnswers[0]) score++;
+      }
+
+      totalScoredQuestions++;
+    }
 
     const result = await Result.create({
       examiner_id,
