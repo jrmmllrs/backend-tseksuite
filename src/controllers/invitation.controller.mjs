@@ -9,7 +9,7 @@ import env from "../configs/env.mjs";
 
 export const generateLinkInvitation = async (req, res) => {
   try {
-    const { email, quiz_id, dept_id } = req.body;
+    const { email, quiz_id, dept_id, expiration } = req.body;
 
     if (!email || !quiz_id || !dept_id) {
       return res.status(400).json({ message: "Missing required fields." });
@@ -23,7 +23,7 @@ export const generateLinkInvitation = async (req, res) => {
     }
 
     const token = uuidV4();
-    const expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires_at = new Date(Date.now() + expiration * 60 * 60 * 1000);
 
     const invitation = await Invitation.create({
       token,
@@ -60,10 +60,10 @@ export const validateLinkInvitation = async (req, res) => {
     if (!invitation)
       return res.status(404).json({ message: "Invalid invitation link." });
 
-    if (invitation.used)
-      return res
-        .status(400)
-        .json({ message: "This invitation was already used." });
+    // if (invitation.used)
+    //   return res
+    //     .status(400)
+    //     .json({ message: "This invitation was already used." });
 
     if (invitation.expires_at && new Date(invitation.expires_at) < new Date())
       return res
@@ -104,9 +104,9 @@ export const completeLinkInvitation = async (req, res) => {
       return res.status(404).json({ message: "Invalid invitation token." });
     }
 
-    if (invitation.used) {
-      return res.status(400).json({ message: "Invitation already used." });
-    }
+    // if (invitation.used) {
+    //   return res.status(400).json({ message: "Invitation already used." });
+    // }
 
     const examiner = await Examiner.create({
       first_name,
@@ -116,7 +116,7 @@ export const completeLinkInvitation = async (req, res) => {
     });
 
     invitation.examiner_id = examiner.examiner_id;
-    invitation.used = true;
+    // invitation.used = true;
     await invitation.save();
 
     res.status(200).json({
