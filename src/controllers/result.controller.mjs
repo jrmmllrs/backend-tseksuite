@@ -46,14 +46,149 @@ export const getAllResult = async (req, res) => {
   }
 };
 
+// export const createResult = async (req, res) => {
+//   try {
+//     const { examiner_id, quiz_id, answers, status } = req.body;
+
+//     const questions = await QuestionBank.findAll({
+//       where: {
+//         quiz_id,
+//       },
+//       include: [
+//         {
+//           model: AnswerOption,
+//           attributes: ["answer_id", "option_text", "is_correct"],
+//         },
+//       ],
+//     });
+
+//     let score = 0;
+//     let totalScoredQuestions = 0;
+//     let detailedResults = [];
+
+//     for (const answer of answers) {
+//       const question = questions.find(
+//         (q) => q.question_id === answer.question_id
+//       );
+
+//       if (!question) {
+//         return res.status(400).json({ message: "Question not found." });
+//       }
+
+//       const type = question.question_type;
+
+//       // Get correct answers for this question
+//       const correctOptions = question.AnswerOptions.filter(
+//         (opt) => opt.is_correct
+//       );
+//       const correctAnswerIds = correctOptions.map((opt) => opt.answer_id);
+//       const correctAnswerTexts = correctOptions.map((opt) =>
+//         opt.option_text.trim().toLowerCase()
+//       );
+
+//       let userAnswers = [];
+//       let isCorrect = false;
+
+//       // Handle different answer formats
+//       if (Array.isArray(answer.selected_answer)) {
+//         userAnswers = answer.selected_answer;
+//       } else {
+//         userAnswers = [answer.selected_answer];
+//       }
+
+//       // Filter out null/undefined answers
+//       userAnswers = userAnswers.filter((a) => a !== null && a !== undefined);
+
+//       if (type === "CB") {
+//         // Checkbox questions - must match all correct answers exactly
+//         const userAnswerIds = userAnswers
+//           .map((answer) => {
+//             // If answer is text, find matching option ID
+//             if (typeof answer === "string") {
+//               const option = question.AnswerOptions.find(
+//                 (opt) =>
+//                   opt.option_text.trim().toLowerCase() ===
+//                   answer.trim().toLowerCase()
+//               );
+//               return option ? option.answer_id : null;
+//             }
+//             return answer; // Assume it's already an ID
+//           })
+//           .filter((id) => id !== null);
+
+//         isCorrect =
+//           userAnswerIds.length === correctAnswerIds.length &&
+//           userAnswerIds.every((id) => correctAnswerIds.includes(id)) &&
+//           correctAnswerIds.every((id) => userAnswerIds.includes(id));
+//       } else {
+//         // Single choice questions (TF, MC)
+//         let userAnswer = userAnswers[0];
+
+//         // Convert text answer to ID if needed
+//         if (typeof userAnswer === "string") {
+//           const option = question.AnswerOptions.find(
+//             (opt) =>
+//               opt.option_text.trim().toLowerCase() ===
+//               userAnswer.trim().toLowerCase()
+//           );
+//           userAnswer = option ? option.answer_id : null;
+//         }
+
+//         isCorrect = correctAnswerIds.includes(userAnswer);
+//       }
+
+//       if (isCorrect) {
+//         score += question.points || 1;
+//       }
+
+//       totalScoredQuestions++;
+
+//       detailedResults.push({
+//         question_id: question.question_id,
+//         user_answer: answer.selected_answer,
+//         is_correct: isCorrect,
+//         correct_answers: correctOptions.map((opt) => opt.option_text),
+//       });
+//     }
+
+//     let finalStatus = status;
+//     if (!finalStatus) {
+//       finalStatus =
+//         answers.length < questions.length ? "ABANDONED" : "COMPLETED";
+//     }
+
+//     const result = await Result.create({
+//       examiner_id,
+//       quiz_id,
+//       score,
+//       total_questions: questions.length,
+//       status: finalStatus,
+//     });
+
+//     res.status(201).json({
+//       message: "Result created successfully",
+//       data: {
+//         ...result.toJSON(),
+//         detailed_results: detailedResults,
+//         max_score: totalScoredQuestions,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error creating result", error);
+//     res.status(500).json({
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
+
 export const createResult = async (req, res) => {
   try {
     const { examiner_id, quiz_id, answers, status } = req.body;
 
+    // Fetch quiz questions with answer options
     const questions = await QuestionBank.findAll({
-      where: {
-        quiz_id,
-      },
+      where: { quiz_id },
       include: [
         {
           model: AnswerOption,
@@ -62,35 +197,21 @@ export const createResult = async (req, res) => {
       ],
     });
 
+    if (!questions.length) {
+      return res
+        .status(404)
+        .json({ message: "No questions found for this quiz." });
+    }
+
     let score = 0;
-    let totalScoredQuestions = 0;
-    let detailedResults = [];
+    const detailedResults = [];
 
     for (const answer of answers) {
       const question = questions.find(
         (q) => q.question_id === answer.question_id
       );
+      if (!question) continue;
 
-      if (!question) {
-        return res.status(400).json({ message: "Question not found." });
-      }
-
-      const type = question.question_type;
-
-      // Skip descriptive questions for auto-scoring
-      if (type === "DESC") {
-        detailedResults.push({
-          question_id: question.question_id,
-          user_answer: answer.selected_answer,
-          is_correct: null,
-          correct_answers: question.AnswerOptions.filter(
-            (opt) => opt.is_correct
-          ).map((opt) => opt.option_text),
-        });
-        continue;
-      }
-
-      // Get correct answers for this question
       const correctOptions = question.AnswerOptions.filter(
         (opt) => opt.is_correct
       );
@@ -99,76 +220,75 @@ export const createResult = async (req, res) => {
         opt.option_text.trim().toLowerCase()
       );
 
-      let userAnswers = [];
+      // Normalize user answers into array
+      let userAnswers = Array.isArray(answer.selected_answer)
+        ? answer.selected_answer
+        : [answer.selected_answer];
+
+      userAnswers = userAnswers.filter(Boolean);
+
+      let questionScore = 0;
       let isCorrect = false;
 
-      // Handle different answer formats
-      if (Array.isArray(answer.selected_answer)) {
-        userAnswers = answer.selected_answer;
-      } else {
-        userAnswers = [answer.selected_answer];
-      }
-
-      // Filter out null/undefined answers
-      userAnswers = userAnswers.filter((a) => a !== null && a !== undefined);
-
-      if (type === "CB") {
-        // Checkbox questions - must match all correct answers exactly
+      if (question.question_type === "CB") {
+        // Checkbox: calculate partial score
         const userAnswerIds = userAnswers
-          .map((answer) => {
-            // If answer is text, find matching option ID
-            if (typeof answer === "string") {
-              const option = question.AnswerOptions.find(
+          .map((userAns) => {
+            if (typeof userAns === "string") {
+              const match = question.AnswerOptions.find(
                 (opt) =>
                   opt.option_text.trim().toLowerCase() ===
-                  answer.trim().toLowerCase()
+                  userAns.trim().toLowerCase()
               );
-              return option ? option.answer_id : null;
+              return match ? match.answer_id : null;
             }
-            return answer; // Assume it's already an ID
+            return userAns;
           })
-          .filter((id) => id !== null);
+          .filter(Boolean);
 
+        const correctSelectedCount = userAnswerIds.filter((id) =>
+          correctAnswerIds.includes(id)
+        ).length;
+        const totalCorrectCount = correctAnswerIds.length;
+
+        // Partial scoring: fraction of correct answers selected
+        questionScore =
+          (correctSelectedCount / totalCorrectCount) * (question.points || 1);
+
+        // Only mark fully correct if all correct answers selected AND no extra
         isCorrect =
-          userAnswerIds.length === correctAnswerIds.length &&
-          userAnswerIds.every((id) => correctAnswerIds.includes(id)) &&
-          correctAnswerIds.every((id) => userAnswerIds.includes(id));
+          userAnswerIds.length === totalCorrectCount &&
+          correctSelectedCount === totalCorrectCount;
       } else {
-        // Single choice questions (TF, MC)
+        // MC / TF: full points if correct
         let userAnswer = userAnswers[0];
 
-        // Convert text answer to ID if needed
         if (typeof userAnswer === "string") {
-          const option = question.AnswerOptions.find(
+          const match = question.AnswerOptions.find(
             (opt) =>
               opt.option_text.trim().toLowerCase() ===
               userAnswer.trim().toLowerCase()
           );
-          userAnswer = option ? option.answer_id : null;
+          userAnswer = match ? match.answer_id : null;
         }
 
         isCorrect = correctAnswerIds.includes(userAnswer);
+        questionScore = isCorrect ? question.points || 1 : 0;
       }
 
-      if (isCorrect) {
-        score += question.points || 1;
-      }
-
-      totalScoredQuestions++;
+      score += questionScore;
 
       detailedResults.push({
         question_id: question.question_id,
         user_answer: answer.selected_answer,
         is_correct: isCorrect,
-        correct_answers: correctOptions.map((opt) => opt.option_text),
+        points_awarded: questionScore,
+        correct_answers: correctAnswerTexts,
       });
     }
 
-    let finalStatus = status;
-    if (!finalStatus) {
-      finalStatus =
-        answers.length < questions.length ? "ABANDONED" : "COMPLETED";
-    }
+    const finalStatus =
+      status || (answers.length < questions.length ? "ABANDONED" : "COMPLETED");
 
     const result = await Result.create({
       examiner_id,
@@ -183,11 +303,11 @@ export const createResult = async (req, res) => {
       data: {
         ...result.toJSON(),
         detailed_results: detailedResults,
-        max_score: totalScoredQuestions,
+        max_score: questions.reduce((sum, q) => sum + (q.points || 1), 0),
       },
     });
   } catch (error) {
-    console.error("Error creating result", error);
+    console.error("Error creating result:", error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
