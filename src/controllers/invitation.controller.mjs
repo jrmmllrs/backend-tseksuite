@@ -26,7 +26,7 @@ export const generateLinkInvitation = async (req, res) => {
       });
     }
 
-    const { email, quiz_id, dept_id, expiration } = result.data;
+    const { quiz_id, dept_id, expiration } = result.data;
 
     const quiz = await Quiz.findByPk(quiz_id);
     const dept = await Department.findByPk(dept_id);
@@ -42,7 +42,6 @@ export const generateLinkInvitation = async (req, res) => {
       token,
       quiz_id,
       dept_id,
-      email,
       expires_at,
     });
 
@@ -81,7 +80,6 @@ export const validateLinkInvitation = async (req, res) => {
     res.status(200).json({
       message: "Invitation valid.",
       data: {
-        email: invitation.email,
         dept_id: invitation.dept_id,
         quiz_id: invitation.quiz_id,
         quiz_name: invitation.Quiz?.quiz_name,
