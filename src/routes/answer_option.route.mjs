@@ -1,13 +1,12 @@
 import express from "express";
 import {
   getAllAnswer,
-  getAnswersForTest, // NEW - for secure test taking
+  getAnswersForTest,
   createAnswer,
   updateAnswer,
+  updateMultipleAnswers,
   deleteAnswer,
 } from "../controllers/answer_option.controller.mjs";
-import { validateSchema } from "../middlewares/validateSchema.middleware.mjs";
-import { answerOptionSchema } from "../schemas/answer_option.schema.mjs";
 
 const router = express.Router();
 
@@ -20,21 +19,11 @@ router.get("/get/:question_id", getAllAnswer);
 // Alternative route format (keep for backward compatibility)
 router.get("/:question_id/get", getAllAnswer);
 
-// Create answer
-router.post(
-  "/:question_id/create",
-  validateSchema(answerOptionSchema),
-  createAnswer
-);
+router.post("/:question_id/create", createAnswer);
 
-// Update answer
-router.put(
-  "/:answer_id/update",
-  validateSchema(answerOptionSchema),
-  updateAnswer
-);
+router.put("/:answer_id/update", updateAnswer);
+router.put("/:answer_id/updateAll", updateMultipleAnswers);
 
-// Delete answer
 router.delete("/:answer_id/delete", deleteAnswer);
 
 export default router;

@@ -5,15 +5,28 @@ import {
   Department,
   Examiner,
 } from "../models/index.model.mjs";
+import { examinerSchema, invitationSchema } from "../schemas/index.schema.mjs";
 import env from "../configs/env.mjs";
 
 export const generateLinkInvitation = async (req, res) => {
   try {
-    const { email, quiz_id, dept_id } = req.body;
+    const result = invitationSchema.safeParse(req.body);
 
-    if (!email || !quiz_id || !dept_id) {
-      return res.status(400).json({ message: "Missing required fields." });
+    if (!result.success) {
+      const formatted = result.error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+        expected: err.expected,
+        received: err.received,
+      }));
+
+      return res.status(400).json({
+        message: "Zod Validation failed",
+        errors: formatted,
+      });
     }
+
+    const { quiz_id, dept_id, expiration } = result.data;
 
     const quiz = await Quiz.findByPk(quiz_id);
     const dept = await Department.findByPk(dept_id);
@@ -23,13 +36,12 @@ export const generateLinkInvitation = async (req, res) => {
     }
 
     const token = uuidV4();
-    const expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hour expiration
+    const expires_at = new Date(Date.now() + expiration * 60 * 60 * 1000);
 
     const invitation = await Invitation.create({
       token,
       quiz_id,
       dept_id,
-      email,
       expires_at,
     });
 
@@ -60,11 +72,6 @@ export const validateLinkInvitation = async (req, res) => {
     if (!invitation)
       return res.status(404).json({ message: "Invalid invitation link." });
 
-    if (invitation.used)
-      return res
-        .status(400)
-        .json({ message: "This invitation was already used." });
-
     if (invitation.expires_at && new Date(invitation.expires_at) < new Date())
       return res
         .status(400)
@@ -73,7 +80,6 @@ export const validateLinkInvitation = async (req, res) => {
     res.status(200).json({
       message: "Invitation valid.",
       data: {
-        email: invitation.email,
         dept_id: invitation.dept_id,
         quiz_id: invitation.quiz_id,
         quiz_name: invitation.Quiz?.quiz_name,
@@ -88,7 +94,24 @@ export const validateLinkInvitation = async (req, res) => {
 
 export const completeLinkInvitation = async (req, res) => {
   try {
-    const { token, first_name, last_name, email } = req.body;
+    const { token } = req.body;
+    const result = examinerSchema.safeParse(req.body);
+
+    if (!result.success) {
+      const formatted = result.error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+        expected: err.expected,
+        received: err.received,
+      }));
+
+      return res.status(400).json({
+        message: "Zod Validation failed",
+        errors: formatted,
+      });
+    }
+
+    const { first_name, last_name, email } = result.data;
 
     const invitation = await Invitation.findOne({
       where: { token },
@@ -104,10 +127,6 @@ export const completeLinkInvitation = async (req, res) => {
       return res.status(404).json({ message: "Invalid invitation token." });
     }
 
-    if (invitation.used) {
-      return res.status(400).json({ message: "Invitation already used." });
-    }
-
     const examiner = await Examiner.create({
       first_name,
       last_name,
@@ -116,7 +135,6 @@ export const completeLinkInvitation = async (req, res) => {
     });
 
     invitation.examiner_id = examiner.examiner_id;
-    invitation.used = true;
     await invitation.save();
 
     res.status(200).json({
