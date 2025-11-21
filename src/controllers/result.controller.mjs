@@ -304,6 +304,15 @@ export const createResult = async (req, res) => {
         let userAnswer = userAnswers[0];
         if (typeof userAnswer === "string") {
           userAnswer = userAnswer.trim().toLowerCase();
+
+          const match = question.AnswerOptions.find((opt) =>
+            opt.is_correct
+              ? opt.option_text.trim().toLowerCase() === userAnswer
+              : false
+          );
+
+          isCorrect = !!match;
+          questionScore = isCorrect ? question.points || 1 : 0;
         }
       } else {
         // MC / TF: full points if correct
@@ -410,65 +419,65 @@ export const createResult = async (req, res) => {
 //   }
 // };
 
-export const getResultsByQuiz = async (req, res) => {
-  try {
-    const { quiz_id } = req.params;
+// export const getResultsByQuiz = async (req, res) => {
+//   try {
+//     const { quiz_id } = req.params;
 
-    const results = await Result.findAll({
-      where: { quiz_id },
-      include: [
-        {
-          model: Examiner,
-          attributes: ["first_name", "last_name", "email"],
-        },
-        {
-          model: Quiz,
-          attributes: ["quiz_name", "time_limit"],
-        },
-      ],
-      order: [["created_at", "DESC"]],
-    });
+//     const results = await Result.findAll({
+//       where: { quiz_id },
+//       include: [
+//         {
+//           model: Examiner,
+//           attributes: ["first_name", "last_name", "email"],
+//         },
+//         {
+//           model: Quiz,
+//           attributes: ["quiz_name", "time_limit"],
+//         },
+//       ],
+//       order: [["created_at", "DESC"]],
+//     });
 
-    res.status(200).json({
-      message: "Results retrieved successfully",
-      data: results,
-    });
-  } catch (error) {
-    console.error("Error retrieving results by quiz:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       message: "Results retrieved successfully",
+//       data: results,
+//     });
+//   } catch (error) {
+//     console.error("Error retrieving results by quiz:", error);
+//     res.status(500).json({
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
 
-export const getResultsByExaminer = async (req, res) => {
-  try {
-    const { examiner_id } = req.params;
+// export const getResultsByExaminer = async (req, res) => {
+//   try {
+//     const { examiner_id } = req.params;
 
-    const results = await Result.findAll({
-      where: { examiner_id },
-      include: [
-        {
-          model: Quiz,
-          attributes: ["quiz_name", "time_limit"],
-        },
-      ],
-      order: [["created_at", "DESC"]],
-    });
+//     const results = await Result.findAll({
+//       where: { examiner_id },
+//       include: [
+//         {
+//           model: Quiz,
+//           attributes: ["quiz_name", "time_limit"],
+//         },
+//       ],
+//       order: [["created_at", "DESC"]],
+//     });
 
-    res.status(200).json({
-      message: "Results retrieved successfully",
-      data: results,
-    });
-  } catch (error) {
-    console.error("Error retrieving results by examiner:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       message: "Results retrieved successfully",
+//       data: results,
+//     });
+//   } catch (error) {
+//     console.error("Error retrieving results by examiner:", error);
+//     res.status(500).json({
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
 
 export const deleteResult = async (req, res) => {
   try {

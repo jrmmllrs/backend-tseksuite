@@ -9,7 +9,10 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      process.env.FRONT_END_BASE_URL_DEV || "http://localhost:5173",
+      process.env.FRONT_END_BASE_URL_PROD,
+    ],
     credentials: true,
   })
 );
@@ -25,7 +28,7 @@ app.use("/api", routes);
     console.log("Connection has been established successfully.");
 
     // await sequelize.sync({
-    //   force: true,
+    //   alter: true,
     // });
     // console.log("All models synced");
   } catch (error) {

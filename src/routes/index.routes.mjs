@@ -7,8 +7,10 @@ import answerRoutes from "../routes/answer_option.route.mjs";
 import resultRoutes from "../routes/result.route.mjs";
 import bridgeRoutes from "../routes/bridge.route.mjs";
 import invitationRoutes from "../routes/invitation.route.mjs";
+import { verifyToken } from "../middlewares/auth.middleware.mjs";
 
 const router = express.Router();
+// router.use(verifyToken);
 
 router.use("/examiner", examinerRoutes);
 router.use("/department", departmentRoutes);
