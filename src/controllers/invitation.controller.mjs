@@ -6,7 +6,6 @@ import {
   Examiner,
 } from "../models/index.model.mjs";
 import { examinerSchema, invitationSchema } from "../schemas/index.schema.mjs";
-import env from "../configs/env.mjs";
 
 export const generateLinkInvitation = async (req, res) => {
   try {
@@ -66,7 +65,7 @@ export const validateLinkInvitation = async (req, res) => {
       include: [
         {
           model: Quiz,
-          attributes: ["quiz_id", "quiz_name", "pdf_link"], // Added pdf_link here
+          attributes: ["quiz_id", "quiz_name", "pdf_link"],
         },
         {
           model: Department,
@@ -90,7 +89,7 @@ export const validateLinkInvitation = async (req, res) => {
         quiz_id: invitation.quiz_id,
         quiz_name: invitation.Quiz?.quiz_name,
         dept_name: invitation.Department?.dept_name,
-        pdf_link: invitation.Quiz?.pdf_link, // Added pdf_link here
+        pdf_link: invitation.Quiz?.pdf_link,
       },
     });
   } catch (error) {
@@ -125,7 +124,7 @@ export const completeLinkInvitation = async (req, res) => {
       include: [
         {
           model: Quiz,
-          attributes: ["quiz_id", "quiz_name", "time_limit", "pdf_link"], // ADDED pdf_link HERE
+          attributes: ["quiz_id", "quiz_name", "time_limit", "pdf_link"],
         },
       ],
     });
@@ -152,7 +151,7 @@ export const completeLinkInvitation = async (req, res) => {
           quiz_id: invitation.Quiz.quiz_id,
           quiz_name: invitation.Quiz.quiz_name,
           time_limit: invitation.Quiz.time_limit,
-          pdf_link: invitation.Quiz.pdf_link, // Ensure pdf_link is included
+          pdf_link: invitation.Quiz.pdf_link,
         },
       },
     });

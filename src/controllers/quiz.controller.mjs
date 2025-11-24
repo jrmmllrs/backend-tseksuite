@@ -41,7 +41,7 @@ export const getAllQuiz = async (req, res) => {
 
 export const createQuiz = async (req, res) => {
   try {
-    const { dept_id, pdf_link } = req.body; // Added pdf_link here
+    const { dept_id } = req.body;
 
     const result = quizSchema.safeParse(req.body);
 
@@ -59,13 +59,13 @@ export const createQuiz = async (req, res) => {
       });
     }
 
-    const { quiz_name, time_limit } = result.data;
+    const { quiz_name, time_limit, pdf_link } = result.data;
 
     const quiz = await Quiz.create({
       dept_id,
       quiz_name,
       time_limit,
-      pdf_link: pdf_link || null, // Added pdf_link field
+      pdf_link: pdf_link || null,
     });
 
     res.status(200).json({ message: "Quiz created successfully", data: quiz });
@@ -78,7 +78,6 @@ export const createQuiz = async (req, res) => {
 export const updateQuiz = async (req, res) => {
   try {
     const { quiz_id } = req.params;
-    const { pdf_link } = req.body; // Added pdf_link here
 
     const result = quizSchema.safeParse(req.body);
 
@@ -96,7 +95,7 @@ export const updateQuiz = async (req, res) => {
       });
     }
 
-    const { quiz_name, time_limit } = result.data;
+    const { quiz_name, time_limit, pdf_link } = result.data;
 
     const quiz = await Quiz.findByPk(quiz_id);
 
@@ -106,7 +105,7 @@ export const updateQuiz = async (req, res) => {
 
     quiz.quiz_name = quiz_name;
     quiz.time_limit = time_limit;
-    quiz.pdf_link = pdf_link !== undefined ? pdf_link : quiz.pdf_link; // Update pdf_link if provided
+    quiz.pdf_link = pdf_link !== undefined ? pdf_link : quiz.pdf_link;
     await quiz.save();
 
     res.status(201).json({ message: "Quiz updated successfully", data: quiz });

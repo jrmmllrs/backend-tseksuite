@@ -7,9 +7,6 @@ export const getAllQuestion = async (req, res) => {
 
     const questions = await QuestionBank.findAll({
       where: { quiz_id },
-      attributes: {
-        // exclude: ["explanation"],
-      },
     });
 
     res
